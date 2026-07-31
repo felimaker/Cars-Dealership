@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dealer Evaluation</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .btn { margin-top: 10px; padding: 8px 12px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Evaluación de Distribuidores</h1>
+    
+    <script>
+        // PLACEHOLDERS - Se cambiarán por las URLs reales de IBM Code Engine después del despliegue
+        const PYTHON_URL = "URL_DE_PYTHON_AQUI"; 
+        const NODE_URL = "URL_DE_NODE_AQUI";
+    </script>
+
+    <select id="productSelect" onchange="loadDealers()">
+        <option value="">Selecciona un Producto</option>
+    </select>
+    
+    <div id="dealers" style="margin-top:20px;"></div>
+
+    <script>
+        async function loadProducts() {
+            try {
+                const res = await fetch(`${PYTHON_URL}/products`);
+                const products = await res.json();
+                const select = document.getElementById('productSelect');
+                products.forEach(p => {
+                    select.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+                });
+            } catch (error) {
+                console.error("Esperando URLs reales...", error);
+            }
+        }
+
+        async function loadDealers() {
+            const productId = document.getElementById('productSelect').value;
+            if(!productId) { document.getElementById('dealers').innerHTML = ''; return; }
+            
+            const res = await fetch(`${NODE_URL}/prices/${productId}`);
+            const prices = await res.json();
+            
+            let html = '<h3>Distribuidores disponibles:</h3><ul>';
+            prices.forEach(p => {
+                html += `<li>${p.dealer} 
+                    <button class="btn" onclick="alert('El precio en ${p.dealer} es: $${p.price}')">Ver Precio</button>
+                </li>`;
+            });
+            html += `</ul><button class="btn" style="background:lightblue;" onclick="showAll(${productId})">Ver todos los precios</button>`;
+            
+            document.getElementById('dealers').innerHTML = html;
+        }
+
+        async function showAll(productId) {
+            const res = await fetch(`${NODE_URL}/prices/${productId}`);
+            const prices = await res.json();
+            alert("Comparación de Precios:\n" + prices.map(p => `${p.dealer}: $${p.price}`).join("\n"));
+        }
+
+        loadProducts();
+    </script>
+</body>
+</html>
