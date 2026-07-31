@@ -1,2 +1,0 @@
-$ curl -s https://api.github.com/repos/felimaker/mcino-Introduction-to-Git-and-GitHub/pulls/1 | grep -i '"state":'
-  "state": "closed",
